@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <title>KAIRAT OS V5</title>
+    
+    <style>
+      /* Глобальные настройки */
+      body { 
+        margin: 0; 
+        background-color: #000; 
+        overflow: hidden; /* Убираем двойной скролл у всего окна */
+        font-family: 'Inter', sans-serif;
+      }
+
+      /* Красивый тонкий скроллбар в стиле будущего */
+      .custom-scrollbar::-webkit-scrollbar { 
+        width: 4px; 
+      }
+      .custom-scrollbar::-webkit-scrollbar-track { 
+        background: transparent; 
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb { 
+        background: #18181b; 
+        border-radius: 10px; 
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover { 
+        background: #2563eb; 
+      }
+
+      /* Анимация вращения для иконок загрузки */
+      @keyframes spin-slow { 
+        from { transform: rotate(0deg); } 
+        to { transform: rotate(360deg); } 
+      }
+      .animate-spin-slow { 
+        animation: spin-slow 10s linear infinite; 
+      }
+
+      /* Утилиты для шрифтов */
+      .font-mono { 
+        font-family: 'JetBrains Mono', monospace; 
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    
+    <script type="module" src="/src/index.tsx"></script>
+  </body>
+</html>
