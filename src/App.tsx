@@ -15,6 +15,7 @@ import { AnalyticsModule } from './modules/AnalyticsModule';
 import { TrafficModule } from './modules/TrafficModule';
 // Если в ProjectContent лежат AuthModule и ChatModule:
 import { AuthModule, ChatModule } from './modules/ProjectContent';
+import { BackendModule } from './modules/BackendModule';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -33,7 +34,8 @@ export default function App() {
     { id: 3, name: "Terminal_Shell", tech: "Zsh / Root", icon: <Terminal size={24}/> },
     { id: 4, name: "Net_Analytics", tech: "Data / Logic", icon: <Activity size={24}/> },
     { id: 5, name: "Traffic_Control", tech: "Gateway / API", icon: <Globe size={24}/> },
-    { id: 6, name: "Neural_Chat", tech: "AI / Message", icon: <MessageSquare size={24}/> }
+    { id: 6, name: "Neural_Chat", tech: "AI / Message", icon: <MessageSquare size={24}/> },
+    { id: 7, name: "Backend_Lab", tech: "API / Server / DB", icon: <Database size={24}/> }
   ];
 
   return (
@@ -130,6 +132,7 @@ export default function App() {
                  {selectedProject === 4 && <AnalyticsModule />}
                  {selectedProject === 5 && <TrafficModule />}
                  {selectedProject === 6 && <ChatModule />}
+                 {selectedProject === 7 && <BackendModule />}
                  
                  {/* Если ID не найден, покажем заглушку */}
                  {!projects.find(p => p.id === selectedProject) && (
