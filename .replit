@@ -16,11 +16,7 @@ publicDir = "dist"
 
 [[ports]]
 localPort = 5000
-externalPort = 5000
-
-[[ports]]
-localPort = 5001
-externalPort = 3000
+externalPort = 80
 
 [[ports]]
 localPort = 5173
@@ -58,5 +54,5 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev -- --port 5174"
-waitForPort = 5174
+args = "npm run dev -- --port 5000 --strictPort"
+waitForPort = 5000

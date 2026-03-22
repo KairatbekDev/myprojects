@@ -18,8 +18,7 @@ import { AuthModule } from './modules/AuthModule';
 import { ChatModule } from './modules/ProjectContent'; 
 import { BackendModule } from './modules/BackendModule';
 import { PulseMonitorModule } from './modules/PulseMonitorModule';
-import { SettingsModule } from
-'./modules/SettingsModule';
+import { SettingsModule } from './modules/SettingsModule';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
