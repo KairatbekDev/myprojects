@@ -24,6 +24,7 @@
     "vite": "^3.0.4"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.99.1",
     "eye": "^0.0.3",
     "framer-motion": "^12.34.3",
     "lock": "^1.1.0",

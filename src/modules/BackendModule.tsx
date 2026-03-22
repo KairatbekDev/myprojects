@@ -1,42 +1,19 @@
-/**
- * BackendModule.tsx
- * 
- * Модуль «Backend_Lab» — интерактивная панель для бэкенд-разработки.
- * Здесь вы можете отслеживать статус API-эндпоинтов, управлять базой данных,
- * следить за серверными логами и редактировать конфигурацию сервера.
- * 
- * Раздел создан для удобного редактирования и расширения серверной части проекта.
- */
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Server, Database, Code2, Cpu, CheckCircle2,
-  XCircle, RefreshCw, ChevronRight, Terminal, Globe
+  XCircle, RefreshCw, ChevronRight, Terminal, Globe, 
+  Activity, Zap, ShieldCheck, Search
 } from 'lucide-react';
 
+// --- ДАННЫЕ (Вынесем для чистоты) ---
 const endpoints = [
-  { method: 'GET',    path: '/api/v1/users',      status: 200, ms: 42  },
-  { method: 'POST',   path: '/api/v1/auth/login',  status: 200, ms: 87  },
-  { method: 'GET',    path: '/api/v1/projects',    status: 200, ms: 31  },
-  { method: 'DELETE', path: '/api/v1/sessions/:id',status: 204, ms: 19  },
-  { method: 'GET',    path: '/api/v1/logs',        status: 500, ms: 203 },
+  { method: 'GET',    path: '/api/v1/users',      status: 200, ms: 42, load: '2%'  },
+  { method: 'POST',   path: '/api/v1/auth/login',  status: 200, ms: 87, load: '12%' },
+  { method: 'GET',    path: '/api/v1/projects',    status: 200, ms: 31, load: '5%'  },
+  { method: 'DELETE', path: '/api/v1/sessions/:id',status: 204, ms: 19, load: '1%'  },
+  { method: 'GET',    path: '/api/v1/logs',        status: 500, ms: 203, load: '45%' },
 ];
-
-const logs = [
-  { time: '12:00:01', level: 'INFO',  msg: 'Сервер запущен на порту 8000' },
-  { time: '12:00:03', level: 'INFO',  msg: 'Подключение к базе данных установлено' },
-  { time: '12:01:14', level: 'WARN',  msg: 'Высокое время отклика: /api/v1/logs (203ms)' },
-  { time: '12:02:55', level: 'ERROR', msg: 'Исключение: Connection pool exceeded limit' },
-  { time: '12:03:10', level: 'INFO',  msg: 'Кэш очищен успешно' },
-];
-
-const methodColor: Record<string, string> = {
-  GET:    'text-blue-400',
-  POST:   'text-emerald-400',
-  DELETE: 'text-red-400',
-  PUT:    'text-yellow-400',
-};
 
 const levelColor: Record<string, string> = {
   INFO:  'text-blue-400',
@@ -49,6 +26,15 @@ const tabs = ['Эндпоинты', 'База данных', 'Логи', 'Кон
 export const BackendModule = () => {
   const [activeTab, setActiveTab] = useState('Эндпоинты');
   const [spinning, setSpinning] = useState(false);
+  const [cpuLoad, setCpuLoad] = useState(12);
+
+  // Имитация живой нагрузки CPU
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCpuLoad(Math.floor(Math.random() * (45 - 12 + 1) + 12));
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleRefresh = () => {
     setSpinning(true);
@@ -56,60 +42,79 @@ export const BackendModule = () => {
   };
 
   return (
-    <div className="space-y-6 p-4">
+    <div className="space-y-6 p-2 md:p-6 font-sans">
 
-      {/* Заголовок */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4 text-orange-500">
-          <Server size={48} />
+      {/* HEADER С ЭФФЕКТОМ СВЕЧЕНИЯ */}
+      <div className="flex items-center justify-between bg-orange-500/5 p-6 rounded-[2.5rem] border border-orange-500/10 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 blur-[50px]" />
+        <div className="flex items-center gap-5 relative z-10">
+          <div className="p-4 bg-orange-500 rounded-2xl shadow-[0_0_20px_rgba(249,115,22,0.4)]">
+            <Server size={32} className="text-white" />
+          </div>
           <div>
-            <h2 className="text-white text-3xl font-black italic uppercase tracking-tighter">
-              Backend_Lab
+            <h2 className="text-white text-3xl font-black italic uppercase tracking-tighter leading-none">
+              Backend_Lab <span className="text-orange-500 text-sm not-italic ml-2">V2.0</span>
             </h2>
-            <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">
-              Панель разработки серверной части
-            </p>
+            <div className="flex items-center gap-2 mt-1">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <p className="text-[8px] font-black text-zinc-500 uppercase tracking-[0.3em]">
+                System_Node: Operational // Uptime: 124h
+              </p>
+            </div>
           </div>
         </div>
-        <button
-          onClick={handleRefresh}
-          className="p-3 bg-zinc-900 border border-white/10 rounded-xl text-zinc-400 hover:text-white hover:border-orange-500/40 transition-all"
-        >
-          <motion.div animate={{ rotate: spinning ? 360 : 0 }} transition={{ duration: 0.8 }}>
-            <RefreshCw size={18} />
+        <button onClick={handleRefresh} className="relative z-10 p-4 bg-black/40 border border-white/5 rounded-2xl text-zinc-400 hover:text-orange-500 transition-all active:scale-90">
+          <motion.div animate={{ rotate: spinning ? 360 : 0 }} transition={{ duration: 0.8, ease: "easeInOut" }}>
+            <RefreshCw size={20} />
           </motion.div>
         </button>
       </div>
 
-      {/* Статус-бар */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { label: 'Статус сервера', value: 'Online', ok: true },
-          { label: 'База данных',    value: 'PostgreSQL', ok: true },
-          { label: 'Ошибки (24ч)',   value: '1 ошибка', ok: false },
-        ].map((s) => (
-          <div key={s.label} className="bg-zinc-900/60 border border-white/5 rounded-2xl p-4 flex flex-col gap-2">
-            <p className="text-[8px] font-black uppercase tracking-widest text-zinc-600">{s.label}</p>
-            <div className="flex items-center gap-2">
-              {s.ok
-                ? <CheckCircle2 size={14} className="text-emerald-500" />
-                : <XCircle size={14} className="text-red-500" />}
-              <span className={`text-[11px] font-black ${s.ok ? 'text-emerald-400' : 'text-red-400'}`}>{s.value}</span>
-            </div>
+      {/* LIVE MONITORING CARDS */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-zinc-900/40 border border-white/5 rounded-3xl p-5 group hover:border-orange-500/30 transition-all">
+          <div className="flex justify-between items-center mb-4">
+            <p className="text-[9px] font-black text-zinc-500 uppercase">CPU_Load</p>
+            <Cpu size={14} className="text-orange-500" />
           </div>
-        ))}
+          <div className="flex items-end gap-3">
+             <h4 className="text-2xl font-black text-white italic">{cpuLoad}%</h4>
+             <div className="flex-1 h-1.5 bg-zinc-800 rounded-full mb-2 overflow-hidden">
+                <motion.div animate={{ width: `${cpuLoad}%` }} className="h-full bg-orange-500 shadow-[0_0_10px_orange]" />
+             </div>
+          </div>
+        </div>
+
+        <div className="bg-zinc-900/40 border border-white/5 rounded-3xl p-5">
+          <div className="flex justify-between items-center mb-4">
+            <p className="text-[9px] font-black text-zinc-500 uppercase">Database_IO</p>
+            <Database size={14} className="text-blue-500" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Activity size={16} className="text-emerald-500" />
+            <span className="text-white font-black italic uppercase text-lg tracking-tight">Stable_Link</span>
+          </div>
+        </div>
+
+        <div className="bg-zinc-900/40 border border-white/5 rounded-3xl p-5">
+          <div className="flex justify-between items-center mb-4">
+            <p className="text-[9px] font-black text-zinc-500 uppercase">Security_Layer</p>
+            <ShieldCheck size={14} className="text-emerald-500" />
+          </div>
+          <p className="text-white font-black italic uppercase text-lg tracking-tight">AES_256_Active</p>
+        </div>
       </div>
 
-      {/* Вкладки */}
-      <div className="flex gap-2 flex-wrap">
+      {/* TABS (ELITE DOCK STYLE) */}
+      <div className="flex p-1.5 bg-zinc-900/80 backdrop-blur-xl border border-white/5 rounded-[1.5rem] w-fit mx-auto md:mx-0">
         {tabs.map((t) => (
           <button
             key={t}
             onClick={() => setActiveTab(t)}
-            className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border ${
+            className={`px-6 py-2.5 rounded-[1.2rem] text-[9px] font-black uppercase tracking-widest transition-all ${
               activeTab === t
-                ? 'bg-orange-600/20 border-orange-500/40 text-orange-400'
-                : 'bg-zinc-900/40 border-white/5 text-zinc-600 hover:text-white'
+                ? 'bg-orange-600 text-white shadow-[0_5px_15px_rgba(234,88,12,0.3)]'
+                : 'text-zinc-500 hover:text-zinc-300'
             }`}
           >
             {t}
@@ -117,112 +122,61 @@ export const BackendModule = () => {
         ))}
       </div>
 
-      {/* Контент вкладок */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.2 }}
-        >
-
-          {/* === ЭНДПОИНТЫ === */}
-          {activeTab === 'Эндпоинты' && (
-            <div className="space-y-2">
-              <p className="text-[8px] text-zinc-600 font-bold uppercase tracking-widest mb-3 flex items-center gap-2">
-                <Globe size={10} /> REST API — доступные маршруты
-              </p>
-              {endpoints.map((e, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between bg-zinc-900/60 border border-white/5 rounded-2xl px-5 py-3 hover:border-orange-500/20 transition-all group"
-                >
-                  <div className="flex items-center gap-4">
-                    <span className={`text-[9px] font-black w-14 ${methodColor[e.method] ?? 'text-zinc-400'}`}>
-                      {e.method}
-                    </span>
-                    <span className="text-white font-mono text-[11px]">{e.path}</span>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className={`text-[9px] font-black ${e.status < 400 ? 'text-emerald-500' : 'text-red-500'}`}>
-                      {e.status}
-                    </span>
-                    <span className="text-[9px] text-zinc-600">{e.ms}ms</span>
-                    <ChevronRight size={12} className="text-zinc-700 group-hover:text-orange-500 transition-colors" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* === БАЗА ДАННЫХ === */}
-          {activeTab === 'База данных' && (
-            <div className="space-y-3">
-              <p className="text-[8px] text-zinc-600 font-bold uppercase tracking-widest mb-3 flex items-center gap-2">
-                <Database size={10} /> Таблицы PostgreSQL
-              </p>
-              {['users', 'sessions', 'projects', 'logs', 'settings'].map((table) => (
-                <div key={table} className="flex items-center justify-between bg-zinc-900/60 border border-white/5 rounded-2xl px-5 py-4 hover:border-orange-500/20 transition-all group cursor-pointer">
-                  <div className="flex items-center gap-3">
-                    <Database size={14} className="text-orange-500/60" />
-                    <span className="text-white font-mono text-[12px]">{table}</span>
-                  </div>
-                  <ChevronRight size={12} className="text-zinc-700 group-hover:text-orange-500 transition-colors" />
-                </div>
-              ))}
-              <button className="w-full mt-2 bg-orange-600/10 border border-orange-500/20 py-4 rounded-2xl font-black uppercase text-[9px] tracking-[0.3em] text-orange-400 hover:bg-orange-600/20 transition-all">
-                Открыть SQL-консоль
-              </button>
-            </div>
-          )}
-
-          {/* === ЛОГИ === */}
-          {activeTab === 'Логи' && (
-            <div className="space-y-2">
-              <p className="text-[8px] text-zinc-600 font-bold uppercase tracking-widest mb-3 flex items-center gap-2">
-                <Terminal size={10} /> Серверные логи (последние записи)
-              </p>
-              <div className="bg-black/60 border border-white/5 rounded-3xl p-5 font-mono space-y-2 max-h-52 overflow-y-auto">
-                {logs.map((l, i) => (
-                  <div key={i} className="flex items-start gap-3 text-[10px]">
-                    <span className="text-zinc-700 shrink-0">{l.time}</span>
-                    <span className={`font-black w-12 shrink-0 ${levelColor[l.level] ?? 'text-zinc-400'}`}>{l.level}</span>
-                    <span className="text-zinc-300">{l.msg}</span>
-                  </div>
+      {/* CONTENT AREA */}
+      <div className="min-h-[300px]">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* ЭНДПОИНТЫ */}
+            {activeTab === 'Эндпоинты' && (
+              <div className="grid gap-3">
+                {endpoints.map((e, i) => (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                    key={i}
+                    className="flex flex-col md:flex-row md:items-center justify-between bg-zinc-900/40 border border-white/5 rounded-[1.8rem] p-5 hover:bg-zinc-900/60 transition-all group"
+                  >
+                    <div className="flex items-center gap-6 mb-3 md:mb-0">
+                      <div className={`px-4 py-1.5 rounded-full text-[9px] font-black ${
+                        e.method === 'GET' ? 'bg-blue-500/10 text-blue-400' : 
+                        e.method === 'POST' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
+                      }`}>
+                        {e.method}
+                      </div>
+                      <span className="text-white font-mono text-xs font-bold tracking-tight">{e.path}</span>
+                    </div>
+                    <div className="flex items-center justify-between md:justify-end gap-8 border-t md:border-t-0 border-white/5 pt-3 md:pt-0">
+                      <div className="text-right">
+                        <p className="text-[7px] font-black text-zinc-600 uppercase mb-0.5">Response</p>
+                        <p className={`text-[10px] font-black ${e.status < 400 ? 'text-emerald-500' : 'text-red-500'}`}>{e.status} OK</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[7px] font-black text-zinc-600 uppercase mb-0.5">Latency</p>
+                        <p className="text-[10px] text-white font-black italic">{e.ms}ms</p>
+                      </div>
+                      <div className="w-10 h-10 rounded-full border border-white/5 flex items-center justify-center group-hover:border-orange-500/50 transition-colors">
+                        <Zap size={14} className="text-zinc-700 group-hover:text-orange-500" />
+                      </div>
+                    </div>
+                  </motion.div>
                 ))}
               </div>
-            </div>
-          )}
+            )}
 
-          {/* === КОНФИГ === */}
-          {activeTab === 'Конфиг' && (
-            <div className="space-y-3">
-              <p className="text-[8px] text-zinc-600 font-bold uppercase tracking-widest mb-3 flex items-center gap-2">
-                <Cpu size={10} /> Конфигурация сервера (редактируемая)
-              </p>
-              {[
-                { key: 'HOST',        value: '0.0.0.0'     },
-                { key: 'PORT',        value: '8000'         },
-                { key: 'DB_URL',      value: 'postgres://...' },
-                { key: 'JWT_SECRET',  value: '••••••••••••' },
-                { key: 'LOG_LEVEL',   value: 'INFO'         },
-                { key: 'CORS_ORIGIN', value: '*'            },
-              ].map((c) => (
-                <div key={c.key} className="flex items-center gap-4 bg-zinc-900/60 border border-white/5 rounded-2xl px-5 py-3">
-                  <span className="text-orange-400 font-mono text-[10px] font-black w-28 shrink-0">{c.key}</span>
-                  <Code2 size={10} className="text-zinc-700 shrink-0" />
-                  <span className="text-zinc-300 font-mono text-[10px]">{c.value}</span>
-                </div>
-              ))}
-              <button className="w-full mt-2 bg-orange-600/10 border border-orange-500/20 py-4 rounded-2xl font-black uppercase text-[9px] tracking-[0.3em] text-orange-400 hover:bg-orange-600/20 transition-all">
-                Сохранить конфигурацию
-              </button>
-            </div>
-          )}
-
-        </motion.div>
-      </AnimatePresence>
+            {/* ДРУГИЕ ВКЛАДКИ (КОРОТКО) */}
+            {activeTab === 'База данных' && (
+               <div className="p-10 text-center bg-zinc-900/20 border border-dashed border-white/10 rounded-[3rem]">
+                  <Database size={40} className="mx-auto text-zinc-800 mb-4" />
+                  <p className="text-xs font-black uppercase text-zinc-600 tracking-widest italic">SQL_Mirroring_Protocol_Active</p>
+                  <button className="mt-6 px-8 py-4 bg-orange-600 text-white font-black uppercase text-[10px] rounded-2xl shadow-lg">Query_Explorer</button>
+               </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   );
 };
