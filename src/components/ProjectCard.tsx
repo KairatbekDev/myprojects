@@ -3,7 +3,11 @@ import { motion } from 'framer-motion';
 import { ChevronRight, Shield, Zap, Terminal, Activity, Globe, MessageSquare, Database } from 'lucide-react';
 
 export const ProjectCard = ({ p, onClick }: any) => {
-  const icons: any = { Shield, Zap, Terminal, Activity, Globe, MessageSquare, Database };
+  const icons: any = {
+    Shield, Zap, Terminal,
+    Terminal_Shell: Terminal,
+    Activity, Globe, MessageSquare, Database
+  };
   const IconComponent = icons[p.icon] || Shield;
 
   return (
