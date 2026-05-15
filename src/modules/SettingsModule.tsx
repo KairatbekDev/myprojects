@@ -1,26 +1,36 @@
 import React, { useState } from 'react';
-import { User, MessageCircle, Lock, ChevronRight, ExternalLink, Moon, Sun, CheckCircle, AlertCircle } from 'lucide-react';
+import {
+  User, MessageCircle, Lock, ChevronRight, ExternalLink,
+  Moon, Sun, CheckCircle, AlertCircle,
+} from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme, useAppActions } from '../store/useAppStore';
 import { useToast } from '../hooks/useToast';
+import { logEvent } from '../services/LogService';
 
 interface SettingsProps {
   userEmail: string | null;
 }
 
 export const SettingsModule: React.FC<SettingsProps> = ({ userEmail }) => {
-  const theme = useTheme();
+  const theme          = useTheme();
   const { toggleTheme } = useAppActions();
-  const toast = useToast();
+  const toast          = useToast();
 
-  const [resetStatus, setResetStatus] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
+  const [resetStatus, setResetStatus]   = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
   const [resetLoading, setResetLoading] = useState(false);
 
   const handleThemeToggle = () => {
-    toggleTheme();
     const next = theme === 'dark' ? 'light' : 'dark';
-    toast.info(`Theme switched to ${next} mode`);
+    toggleTheme();
+    toast.info(`Theme switched → ${next === 'light' ? 'Cyber_Navy' : 'Deep_Black'}`);
+    // Fire-and-forget log
+    logEvent({
+      event_type: 'INFO',
+      message: `Theme changed to ${next}`,
+      metadata: { from: theme, to: next },
+    });
   };
 
   const handlePasswordReset = async () => {
@@ -34,7 +44,7 @@ export const SettingsModule: React.FC<SettingsProps> = ({ userEmail }) => {
 
     if (error) {
       setResetStatus({ type: 'error', msg: 'Security error: ' + error.message });
-      toast.error('Password reset failed: ' + error.message);
+      toast.error('Password reset failed');
     } else {
       setResetStatus({ type: 'success', msg: `Reset instructions sent to ${userEmail}` });
       toast.success('Reset email sent — check your inbox');
@@ -44,11 +54,15 @@ export const SettingsModule: React.FC<SettingsProps> = ({ userEmail }) => {
 
   return (
     <div className="max-w-2xl mx-auto space-y-8 pb-10">
-      <h2 className="text-white font-black uppercase italic text-3xl tracking-tighter">System_Config</h2>
+      <h2 className="text-white font-black uppercase italic text-3xl tracking-tighter">
+        System_Config
+      </h2>
 
-      {/* Theme Toggle */}
-      <section className="space-y-4">
-        <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.4em] ml-6">Interface_Settings</p>
+      {/* ── Theme Toggle ──────────────────────────────────────────── */}
+      <section className="space-y-3">
+        <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.4em] ml-6">
+          Interface_Settings
+        </p>
         <button
           onClick={handleThemeToggle}
           className="w-full bg-zinc-900/20 border border-white/5 p-6 rounded-[2rem] flex items-center justify-between hover:bg-white/5 transition-all active:scale-[0.99]"
@@ -63,11 +77,16 @@ export const SettingsModule: React.FC<SettingsProps> = ({ userEmail }) => {
             <div className="text-left">
               <span className="block text-white font-bold uppercase text-xs">Visual_Environment</span>
               <span className="text-[9px] text-zinc-500 uppercase tracking-widest">
-                Mode: {theme} {theme === 'light' ? '— Cyber_Navy' : '— Deep_Black'}
+                Mode: {theme} — {theme === 'light' ? 'Cyber_Navy' : 'Deep_Black'}
               </span>
             </div>
           </div>
-          <div className={`w-11 h-6 rounded-full border relative transition-colors duration-300 ${theme === 'dark' ? 'bg-zinc-800 border-white/10' : 'bg-blue-600 border-blue-500/50'}`}>
+          {/* Animated spring knob */}
+          <div
+            className={`w-11 h-6 rounded-full border relative flex-shrink-0 transition-colors duration-300 ${
+              theme === 'dark' ? 'bg-zinc-800 border-white/10' : 'bg-blue-600 border-blue-500/50'
+            }`}
+          >
             <motion.div
               layout
               className="absolute top-1 w-4 h-4 rounded-full bg-white shadow"
@@ -78,14 +97,16 @@ export const SettingsModule: React.FC<SettingsProps> = ({ userEmail }) => {
         </button>
       </section>
 
-      {/* Profile */}
+      {/* ── Profile ───────────────────────────────────────────────── */}
       <section className="bg-zinc-900/40 border border-white/5 rounded-[2.5rem] p-8 shadow-2xl">
         <div className="flex items-center gap-6">
           <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-blue-400 rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(37,99,235,0.3)] flex-shrink-0">
             <User size={40} className="text-white" />
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] text-blue-500 font-black uppercase tracking-[0.3em] mb-1">Authenticated_Operator</p>
+            <p className="text-[10px] text-blue-500 font-black uppercase tracking-[0.3em] mb-1">
+              Authenticated_Operator
+            </p>
             <p className="text-2xl font-black text-white italic truncate">
               {userEmail?.split('@')[0].toUpperCase() ?? 'ROOT'}
             </p>
@@ -94,9 +115,11 @@ export const SettingsModule: React.FC<SettingsProps> = ({ userEmail }) => {
         </div>
       </section>
 
-      {/* Security */}
+      {/* ── Security ──────────────────────────────────────────────── */}
       <div className="space-y-4">
-        <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.4em] ml-6">Security_Protocols</p>
+        <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.4em] ml-6">
+          Security_Protocols
+        </p>
 
         <AnimatePresence>
           {resetStatus && (
@@ -104,7 +127,7 @@ export const SettingsModule: React.FC<SettingsProps> = ({ userEmail }) => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className={`p-4 rounded-2xl flex items-start gap-3 ${
+              className={`p-4 rounded-2xl flex items-start gap-3 overflow-hidden ${
                 resetStatus.type === 'success'
                   ? 'bg-emerald-500/10 border border-emerald-500/20'
                   : 'bg-red-500/10 border border-red-500/20'
@@ -126,14 +149,16 @@ export const SettingsModule: React.FC<SettingsProps> = ({ userEmail }) => {
         <button
           onClick={handlePasswordReset}
           disabled={resetLoading || !userEmail}
-          className="w-full bg-zinc-900/20 border border-white/5 p-6 rounded-[2rem] flex items-center justify-between hover:bg-red-500/5 hover:border-red-500/20 transition-all group disabled:opacity-50"
+          className="w-full bg-zinc-900/20 border border-white/5 p-6 rounded-[2rem] flex items-center justify-between hover:bg-red-500/5 hover:border-red-500/20 transition-all group disabled:opacity-50 active:scale-[0.99]"
         >
           <div className="flex items-center gap-4">
             <div className="p-3 bg-red-500/10 rounded-xl group-hover:bg-red-500/20 transition-colors">
               <Lock className="text-red-500" size={20} />
             </div>
             <div className="text-left">
-              <span className="block text-white font-bold uppercase text-xs">Reset_Master_Password</span>
+              <span className="block text-white font-bold uppercase text-xs">
+                Reset_Master_Password
+              </span>
               <span className="text-[9px] text-zinc-500 uppercase tracking-widest">
                 {resetLoading ? 'Sending...' : 'Automated_Email_Service'}
               </span>
@@ -143,9 +168,11 @@ export const SettingsModule: React.FC<SettingsProps> = ({ userEmail }) => {
         </button>
       </div>
 
-      {/* External */}
+      {/* ── External ──────────────────────────────────────────────── */}
       <div className="space-y-4">
-        <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.4em] ml-6">External_Comm</p>
+        <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.4em] ml-6">
+          External_Comm
+        </p>
         <a
           href="https://t.me/YOUR_BOT_USERNAME"
           target="_blank"
@@ -158,7 +185,9 @@ export const SettingsModule: React.FC<SettingsProps> = ({ userEmail }) => {
             </div>
             <div className="text-left">
               <span className="block text-white font-bold uppercase text-xs">Direct_Bot_Support</span>
-              <span className="text-[9px] text-blue-500/60 uppercase tracking-widest">Telegram_Gateway</span>
+              <span className="text-[9px] text-blue-500/60 uppercase tracking-widest">
+                Telegram_Gateway
+              </span>
             </div>
           </div>
           <ExternalLink size={18} className="text-blue-500/40 group-hover:text-blue-400 transition-colors" />

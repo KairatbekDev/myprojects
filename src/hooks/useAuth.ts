@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../supabaseClient';
+import { logEvent } from '../services/LogService';
 
 export type AuthMode = 'login' | 'signup' | 'reset';
 
@@ -31,7 +32,9 @@ export const useAuth = (): AuthState & AuthActions => {
       setIsLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
       setUser(s?.user ?? null);
       setIsLoading(false);
@@ -41,35 +44,45 @@ export const useAuth = (): AuthState & AuthActions => {
   }, []);
 
   const classifyError = (message: string): string => {
-    if (message.toLowerCase().includes('failed to fetch') || message.toLowerCase().includes('networkerror')) {
+    const m = message.toLowerCase();
+    if (m.includes('failed to fetch') || m.includes('networkerror'))
       return 'Network error — unable to reach the server. Check your connection or try again shortly.';
-    }
-    if (message.toLowerCase().includes('invalid login credentials')) {
+    if (m.includes('invalid login credentials'))
       return 'Invalid email or password. Please try again.';
-    }
-    if (message.toLowerCase().includes('email not confirmed')) {
+    if (m.includes('email not confirmed'))
       return 'Please confirm your email before logging in.';
-    }
-    if (message.toLowerCase().includes('user already registered')) {
+    if (m.includes('user already registered'))
       return 'An account with this email already exists. Try logging in instead.';
-    }
-    if (message.toLowerCase().includes('password')) {
+    if (m.includes('password'))
       return 'Password must be at least 6 characters.';
-    }
     return message;
   };
 
   const signIn = async (email: string, password: string): Promise<string | null> => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return error ? classifyError(error.message) : null;
+    if (error) return classifyError(error.message);
+    // Fire-and-forget: log successful login
+    logEvent({
+      event_type: 'AUTH',
+      message: `Login successful`,
+      metadata: { email },
+    });
+    return null;
   };
 
   const signUp = async (email: string, password: string): Promise<string | null> => {
     const { error } = await supabase.auth.signUp({ email, password });
-    return error ? classifyError(error.message) : null;
+    if (error) return classifyError(error.message);
+    logEvent({
+      event_type: 'AUTH',
+      message: `New account registered`,
+      metadata: { email },
+    });
+    return null;
   };
 
   const signOut = async (): Promise<void> => {
+    logEvent({ event_type: 'AUTH', message: 'User signed out' });
     await supabase.auth.signOut();
   };
 
@@ -77,7 +90,9 @@ export const useAuth = (): AuthState & AuthActions => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: window.location.origin,
     });
-    return error ? classifyError(error.message) : null;
+    if (error) return classifyError(error.message);
+    logEvent({ event_type: 'AUTH', message: `Password reset requested`, metadata: { email } });
+    return null;
   };
 
   const resendConfirmation = async (email: string): Promise<string | null> => {
