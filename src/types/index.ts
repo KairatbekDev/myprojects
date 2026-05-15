@@ -31,3 +31,37 @@ export interface ApiResponse<T> {
   error: string | null;
   loading: boolean;
 }
+
+export type Theme = 'dark' | 'light';
+
+export type ToastType = 'success' | 'error' | 'info' | 'warning';
+
+export interface ToastNotification {
+  id: string;
+  type: ToastType;
+  message: string;
+  duration?: number;
+}
+
+export interface AccessLog {
+  id: string;
+  event_type: 'INFO' | 'WARNING' | 'ERROR' | 'SUCCESS' | 'AUTH';
+  message: string;
+  user_id: string | null;
+  ip_address: string | null;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  user_id: string | null;
+  user_email: string | null;
+  content: string;
+  created_at: string;
+}
+
+export interface LogCount {
+  event_type: string;
+  count: number;
+}

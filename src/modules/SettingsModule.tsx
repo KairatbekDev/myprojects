@@ -2,16 +2,26 @@ import React, { useState } from 'react';
 import { User, MessageCircle, Lock, ChevronRight, ExternalLink, Moon, Sun, CheckCircle, AlertCircle } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme, useAppActions } from '../store/useAppStore';
+import { useToast } from '../hooks/useToast';
 
 interface SettingsProps {
   userEmail: string | null;
-  currentTheme: 'dark' | 'light';
-  onThemeChange: (theme: 'dark' | 'light') => void;
 }
 
-export const SettingsModule: React.FC<SettingsProps> = ({ userEmail, currentTheme, onThemeChange }) => {
+export const SettingsModule: React.FC<SettingsProps> = ({ userEmail }) => {
+  const theme = useTheme();
+  const { toggleTheme } = useAppActions();
+  const toast = useToast();
+
   const [resetStatus, setResetStatus] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
   const [resetLoading, setResetLoading] = useState(false);
+
+  const handleThemeToggle = () => {
+    toggleTheme();
+    const next = theme === 'dark' ? 'light' : 'dark';
+    toast.info(`Theme switched to ${next} mode`);
+  };
 
   const handlePasswordReset = async () => {
     if (!userEmail) return;
@@ -22,11 +32,13 @@ export const SettingsModule: React.FC<SettingsProps> = ({ userEmail, currentThem
       redirectTo: window.location.origin,
     });
 
-    setResetStatus(
-      error
-        ? { type: 'error', msg: 'Security error: ' + error.message }
-        : { type: 'success', msg: `Reset instructions sent to ${userEmail}` }
-    );
+    if (error) {
+      setResetStatus({ type: 'error', msg: 'Security error: ' + error.message });
+      toast.error('Password reset failed: ' + error.message);
+    } else {
+      setResetStatus({ type: 'success', msg: `Reset instructions sent to ${userEmail}` });
+      toast.success('Reset email sent — check your inbox');
+    }
     setResetLoading(false);
   };
 
@@ -34,30 +46,39 @@ export const SettingsModule: React.FC<SettingsProps> = ({ userEmail, currentThem
     <div className="max-w-2xl mx-auto space-y-8 pb-10">
       <h2 className="text-white font-black uppercase italic text-3xl tracking-tighter">System_Config</h2>
 
+      {/* Theme Toggle */}
       <section className="space-y-4">
         <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.4em] ml-6">Interface_Settings</p>
         <button
-          onClick={() => onThemeChange(currentTheme === 'dark' ? 'light' : 'dark')}
-          className="w-full bg-zinc-900/20 border border-white/5 p-6 rounded-[2rem] flex items-center justify-between hover:bg-white/5 transition-all"
+          onClick={handleThemeToggle}
+          className="w-full bg-zinc-900/20 border border-white/5 p-6 rounded-[2rem] flex items-center justify-between hover:bg-white/5 transition-all active:scale-[0.99]"
         >
           <div className="flex items-center gap-4">
             <div className="p-3 bg-blue-500/10 rounded-xl">
-              {currentTheme === 'dark'
+              {theme === 'dark'
                 ? <Moon className="text-blue-400" size={20} />
-                : <Sun className="text-yellow-500" size={20} />
+                : <Sun className="text-yellow-400" size={20} />
               }
             </div>
             <div className="text-left">
               <span className="block text-white font-bold uppercase text-xs">Visual_Environment</span>
-              <span className="text-[9px] text-zinc-500 uppercase tracking-widest">Mode: {currentTheme}</span>
+              <span className="text-[9px] text-zinc-500 uppercase tracking-widest">
+                Mode: {theme} {theme === 'light' ? '— Cyber_Navy' : '— Deep_Black'}
+              </span>
             </div>
           </div>
-          <div className={`w-10 h-5 rounded-full border border-white/10 relative ${currentTheme === 'dark' ? 'bg-zinc-800' : 'bg-blue-600'}`}>
-            <div className={`absolute top-0.5 w-3.5 h-3.5 rounded-full transition-all ${currentTheme === 'dark' ? 'left-1 bg-zinc-600' : 'right-1 bg-white'}`} />
+          <div className={`w-11 h-6 rounded-full border relative transition-colors duration-300 ${theme === 'dark' ? 'bg-zinc-800 border-white/10' : 'bg-blue-600 border-blue-500/50'}`}>
+            <motion.div
+              layout
+              className="absolute top-1 w-4 h-4 rounded-full bg-white shadow"
+              animate={{ left: theme === 'dark' ? '4px' : 'calc(100% - 20px)' }}
+              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+            />
           </div>
         </button>
       </section>
 
+      {/* Profile */}
       <section className="bg-zinc-900/40 border border-white/5 rounded-[2.5rem] p-8 shadow-2xl">
         <div className="flex items-center gap-6">
           <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-blue-400 rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(37,99,235,0.3)] flex-shrink-0">
@@ -73,6 +94,7 @@ export const SettingsModule: React.FC<SettingsProps> = ({ userEmail, currentThem
         </div>
       </section>
 
+      {/* Security */}
       <div className="space-y-4">
         <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.4em] ml-6">Security_Protocols</p>
 
@@ -82,13 +104,19 @@ export const SettingsModule: React.FC<SettingsProps> = ({ userEmail, currentThem
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className={`p-4 rounded-2xl flex items-start gap-3 ${resetStatus.type === 'success' ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-red-500/10 border border-red-500/20'}`}
+              className={`p-4 rounded-2xl flex items-start gap-3 ${
+                resetStatus.type === 'success'
+                  ? 'bg-emerald-500/10 border border-emerald-500/20'
+                  : 'bg-red-500/10 border border-red-500/20'
+              }`}
             >
               {resetStatus.type === 'success'
                 ? <CheckCircle size={16} className="text-emerald-400 mt-0.5 flex-shrink-0" />
                 : <AlertCircle size={16} className="text-red-400 mt-0.5 flex-shrink-0" />
               }
-              <p className={`text-[10px] font-bold uppercase tracking-wide ${resetStatus.type === 'success' ? 'text-emerald-400' : 'text-red-400'}`}>
+              <p className={`text-[10px] font-bold uppercase tracking-wide ${
+                resetStatus.type === 'success' ? 'text-emerald-400' : 'text-red-400'
+              }`}>
                 {resetStatus.msg}
               </p>
             </motion.div>
@@ -115,6 +143,7 @@ export const SettingsModule: React.FC<SettingsProps> = ({ userEmail, currentThem
         </button>
       </div>
 
+      {/* External */}
       <div className="space-y-4">
         <p className="text-[10px] text-zinc-600 font-black uppercase tracking-[0.4em] ml-6">External_Comm</p>
         <a

@@ -9,6 +9,74 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* =============================================
+   THEME CSS VARIABLES
+   ============================================= */
+:root,
+html.dark {
+  --bg-base: #020202;
+  --bg-gradient: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #020202 100%);
+  --surface-card: rgba(24, 24, 27, 0.4);
+  --surface-input: rgba(0, 0, 0, 0.4);
+  --text-primary: rgba(255, 255, 255, 1);
+  --text-secondary: rgba(161, 161, 170, 1);
+  --text-muted: rgba(82, 82, 91, 1);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-medium: rgba(255, 255, 255, 0.1);
+  --accent-blue: #2563eb;
+  --accent-blue-glow: rgba(37, 99, 235, 0.3);
+  --modal-bg: #050505;
+  --nav-bg: rgba(0, 0, 0, 0.6);
+}
+
+html.light {
+  --bg-base: #0d1526;
+  --bg-gradient: radial-gradient(circle at 50% 0%, #1e3a5f 0%, #0d1526 100%);
+  --surface-card: rgba(255, 255, 255, 0.06);
+  --surface-input: rgba(255, 255, 255, 0.04);
+  --text-primary: rgba(226, 232, 255, 1);
+  --text-secondary: rgba(148, 163, 200, 1);
+  --text-muted: rgba(100, 116, 160, 1);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-medium: rgba(255, 255, 255, 0.14);
+  --accent-blue: #3b82f6;
+  --accent-blue-glow: rgba(59, 130, 246, 0.35);
+  --modal-bg: #0d1526;
+  --nav-bg: rgba(13, 21, 38, 0.85);
+}
+
+/* =============================================
+   THEME-AWARE UTILITY CLASSES
+   ============================================= */
+.app-root {
+  background: var(--bg-base);
+}
+
+.app-surface {
+  background: var(--surface-card);
+  border-color: var(--border-subtle);
+}
+
+.app-input {
+  background: var(--surface-input);
+}
+
+.app-modal {
+  background: var(--modal-bg);
+}
+
+.app-nav {
+  background: var(--nav-bg);
+}
+
+/* Apply theme to body background */
+html.light body {
+  background: #0d1526;
+}
+
+/* =============================================
+   CUSTOM SCROLLBAR
+   ============================================= */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
@@ -23,6 +91,9 @@ body {
   background: rgba(255, 255, 255, 0.15);
 }
 
+/* =============================================
+   INLINE GRAIN OVERLAY
+   ============================================= */
 .grain-overlay {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   background-repeat: repeat;

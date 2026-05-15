@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
 import { useAuth } from './hooks/useAuth';
 import { useProjects } from './hooks/useProjects';
 import { useClock } from './hooks/useClock';
+import { useTheme } from './store/useAppStore';
 import { TabId } from './types';
 
 import { Header } from './widgets/Header';
 import { BottomNav } from './widgets/BottomNav';
 import { ProjectCard } from './components/ProjectCard';
 import { SkeletonCard } from './components/SkeletonCard';
+import { ToastContainer } from './components/ToastContainer';
 
 import { SecurityModule } from './modules/SecurityModule';
 import { CryptoModule } from './modules/CryptoModule';
@@ -33,14 +35,26 @@ export default function App() {
   const { user, isAuthenticated, isLoading, signOut } = useAuth();
   const { projects, isLoading: projectsLoading } = useProjects();
   const time = useClock();
+  const theme = useTheme();
 
   const [activeTab, setActiveTab] = useState<TabId>('dashboard');
   const [selectedProject, setSelectedProject] = useState<number | null>(null);
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+  // ── Apply theme class to <html> so CSS variables take effect ──
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'light') {
+      root.classList.add('light');
+      root.classList.remove('dark');
+    } else {
+      root.classList.add('dark');
+      root.classList.remove('light');
+    }
+  }, [theme]);
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-[#020202] flex items-center justify-center">
+      <div className="fixed inset-0 flex items-center justify-center" style={{ background: 'var(--bg-base)' }}>
         <motion.div
           animate={{ opacity: [0.3, 1, 0.3] }}
           transition={{ duration: 1.6, repeat: Infinity }}
@@ -53,14 +67,26 @@ export default function App() {
   }
 
   if (!isAuthenticated) {
-    return <AuthModule onLogin={() => {}} />;
+    return (
+      <>
+        <AuthModule onLogin={() => {}} />
+        <ToastContainer />
+      </>
+    );
   }
 
   const userEmail = user?.email ?? null;
 
   return (
-    <div className="fixed inset-0 bg-[#020202] text-zinc-400 font-sans flex flex-col overflow-hidden selection:bg-blue-500/30">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,#1a1a1a_0%,#020202_100%)] opacity-70 pointer-events-none" />
+    <div
+      className="fixed inset-0 text-zinc-400 font-sans flex flex-col overflow-hidden selection:bg-blue-500/30 transition-colors duration-500"
+      style={{ background: 'var(--bg-base)' }}
+    >
+      {/* Background gradient — theme-aware via CSS var */}
+      <div
+        className="absolute inset-0 opacity-70 pointer-events-none transition-all duration-500"
+        style={{ background: 'var(--bg-gradient)' }}
+      />
       <div className="absolute inset-0 opacity-[0.04] pointer-events-none grain-overlay" />
 
       <Header userEmail={userEmail} time={time} onSignOut={signOut} />
@@ -82,7 +108,6 @@ export default function App() {
                 <div className="sm:col-span-2 lg:col-span-1">
                   <PulseMonitorModule />
                 </div>
-
                 {projectsLoading
                   ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
                   : projects.map((p) => (
@@ -100,7 +125,6 @@ export default function App() {
                 animate="animate"
                 exit="exit"
                 transition={{ duration: 0.25 }}
-                className="h-full"
               >
                 <TerminalModule />
               </motion.div>
@@ -128,11 +152,7 @@ export default function App() {
                 exit="exit"
                 transition={{ duration: 0.25 }}
               >
-                <SettingsModule
-                  userEmail={userEmail}
-                  currentTheme={theme}
-                  onThemeChange={setTheme}
-                />
+                <SettingsModule userEmail={userEmail} />
               </motion.div>
             )}
 
@@ -142,6 +162,7 @@ export default function App() {
 
       <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
 
+      {/* Project modal */}
       <AnimatePresence>
         {selectedProject !== null && (
           <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-3xl flex items-center justify-center p-4">
@@ -150,7 +171,8 @@ export default function App() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="bg-[#050505] border border-white/10 w-full max-w-2xl rounded-[3.5rem] p-8 md:p-12 relative overflow-y-auto max-h-[90vh] custom-scrollbar shadow-[0_0_100px_rgba(0,0,0,1)]"
+              className="border border-white/10 w-full max-w-2xl rounded-[3.5rem] p-8 md:p-12 relative overflow-y-auto max-h-[90vh] custom-scrollbar shadow-[0_0_100px_rgba(0,0,0,1)]"
+              style={{ background: 'var(--modal-bg)' }}
             >
               <button
                 onClick={() => setSelectedProject(null)}
@@ -158,7 +180,6 @@ export default function App() {
               >
                 <X size={28} />
               </button>
-
               <div className="mt-2">
                 {selectedProject === 1 && <SecurityModule />}
                 {selectedProject === 2 && <CryptoModule />}
@@ -172,6 +193,9 @@ export default function App() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Global toast notifications */}
+      <ToastContainer />
     </div>
   );
 }
