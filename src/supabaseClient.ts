@@ -1,8 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Твой URL из предыдущего шага
-const supabaseUrl = 'https://svkebnkghhsaayookptu.supabase.co'; 
-// Твой Publishable key, который ты копируешь сейчас
-const supabaseAnonKey = 'sb_publishable_Jzv1JxsuH9myEApYgjlusg_Ad2DY40y'; 
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('[Supabase] Missing environment variables: VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY');
+}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);

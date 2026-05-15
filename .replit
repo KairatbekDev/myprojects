@@ -61,3 +61,9 @@ outputType = "webview"
 task = "shell.exec"
 args = "npm run dev -- --port 5000 --strictPort"
 waitForPort = 5000
+
+[userenv]
+
+[userenv.shared]
+VITE_SUPABASE_URL = "https://svkebnkghhsaayookptu.supabase.co"
+VITE_SUPABASE_ANON_KEY = "sb_publishable_Jzv1JxsuH9myEApYgjlusg_Ad2DY40y"
