@@ -17,7 +17,7 @@ export interface UserProfile {
 
 export type AuthMode = 'login' | 'signup' | 'reset';
 
-export type TabId = 'dashboard' | 'shell' | 'security' | 'settings';
+export type TabId = 'dashboard' | 'shell' | 'downloads' | 'security' | 'settings';
 
 export interface TabItem {
   id: TabId;

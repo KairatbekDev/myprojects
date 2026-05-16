@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, LayoutGroup } from 'framer-motion';
-import { LayoutDashboard, Terminal, Shield, Settings } from 'lucide-react';
+import { LayoutDashboard, Terminal, Shield, Settings, FolderDown } from 'lucide-react';
 import { TabId } from '../types';
 
 interface NavItem {
@@ -15,10 +15,11 @@ interface BottomNavProps {
 }
 
 const menuItems: NavItem[] = [
-  { id: 'dashboard', icon: <LayoutDashboard size={22} />, label: 'Dash' },
-  { id: 'shell', icon: <Terminal size={22} />, label: 'Shell' },
-  { id: 'security', icon: <Shield size={22} />, label: 'Sec' },
-  { id: 'settings', icon: <Settings size={22} />, label: 'Sys' },
+  { id: 'dashboard', icon: <LayoutDashboard size={22} />, label: 'Dash'  },
+  { id: 'shell',     icon: <Terminal size={22} />,        label: 'Shell' },
+  { id: 'downloads', icon: <FolderDown size={22} />,      label: 'Hub'   },
+  { id: 'security',  icon: <Shield size={22} />,          label: 'Sec'   },
+  { id: 'settings',  icon: <Settings size={22} />,        label: 'Sys'   },
 ];
 
 export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, setActiveTab }) => {

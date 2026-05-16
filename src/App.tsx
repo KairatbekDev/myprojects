@@ -130,6 +130,19 @@ export default function App() {
               </motion.div>
             )}
 
+            {activeTab === 'downloads' && (
+              <motion.div
+                key="downloads"
+                variants={TAB_PAGE_VARIANTS}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={{ duration: 0.25 }}
+              >
+                <BackendModule initialTab="Загрузки" />
+              </motion.div>
+            )}
+
             {activeTab === 'security' && (
               <motion.div
                 key="sec"

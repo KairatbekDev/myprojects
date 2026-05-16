@@ -6,6 +6,7 @@ import {
   Download, Music, Gamepad2, CheckCircle,
   FileArchive, FileAudio, AlertCircle, Clock,
   Layers, GitBranch, Globe, WifiHigh,
+  Image, Wrench, Palette, MapPin,
 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import { AccessLog } from '../types';
@@ -73,11 +74,11 @@ interface DownloadFile {
 const DOWNLOAD_FILES: DownloadFile[] = [
   {
     id:       'cp-ost',
-    category: 'Музыка',
-    name:     'Cyberpunk_OST_Vol1',
-    ext:      'mp3',
-    size:     '48.2 MB',
-    url:      '',  // ← сюда вставить публичный URL из Supabase Storage
+    category: 'Фото',
+    name:     'Cat',
+    ext:      'Jpg',
+    size:     '90,59 KB',
+    url:      'https://svkebnkghhsaayookptu.supabase.co/storage/v1/object/public/downloads/IMG_20260423_042317%20(3).jpg',  // ← сюда вставить публичный URL из Supabase Storage
     icon:     <FileAudio size={16} className="text-purple-400" />,
   },
   {
@@ -107,7 +108,129 @@ const DOWNLOAD_FILES: DownloadFile[] = [
     url:      '',  // ← сюда вставить публичный URL из Supabase Storage
     icon:     <FileArchive size={16} className="text-orange-400" />,
   },
+  {
+    id:       'test-cat',
+    category: 'Игры',
+    name:     'Cat',
+    ext:      'Jpg',
+    size:     '90,59 KB',
+    url:      'https://svkebnkghhsaayookptu.supabase.co/storage/v1/object/public/downloads/IMG_20260423_042317%20(3).jpg',
+    icon:     <Music size={16} className="text-green-400" />,
+  },
+
+  // ── НОВЫЕ СЛОТЫ — заполните url из Supabase Storage ────────────────────────
+
+  // Категория: Фото (2 слота)
+  {
+    id:       'photo-slot-1',
+    category: 'Фото',
+    name:     'Пустой слот [Фото-1]',
+    ext:      'jpg',
+    size:     '—',
+    url:      '',
+    icon:     <FileAudio size={16} className="text-blue-400" />,
+  },
+  {
+    id:       'photo-slot-2',
+    category: 'Фото',
+    name:     'Пустой слот [Фото-2]',
+    ext:      'png',
+    size:     '—',
+    url:      '',
+    icon:     <FileAudio size={16} className="text-blue-400" />,
+  },
+
+  // Категория: Моды (3 слота)
+  {
+    id:       'mod-slot-1',
+    category: 'Моды',
+    name:     'Пустой слот [Мод-1]',
+    ext:      'zip',
+    size:     '—',
+    url:      '',
+    icon:     <FileArchive size={16} className="text-orange-400" />,
+  },
+  {
+    id:       'mod-slot-2',
+    category: 'Моды',
+    name:     'Пустой слот [Мод-2]',
+    ext:      'zip',
+    size:     '—',
+    url:      '',
+    icon:     <FileArchive size={16} className="text-orange-400" />,
+  },
+  {
+    id:       'mod-slot-3',
+    category: 'Моды',
+    name:     'Пустой слот [Мод-3]',
+    ext:      'zip',
+    size:     '—',
+    url:      '',
+    icon:     <FileArchive size={16} className="text-orange-400" />,
+  },
+
+  // Категория: Текстурпаки (3 слота)
+  {
+    id:       'texture-slot-1',
+    category: 'Текстурпаки',
+    name:     'Пустой слот [Текстурпак-1]',
+    ext:      'zip',
+    size:     '—',
+    url:      '',
+    icon:     <FileArchive size={16} className="text-pink-400" />,
+  },
+  {
+    id:       'texture-slot-2',
+    category: 'Текстурпаки',
+    name:     'Пустой слот [Текстурпак-2]',
+    ext:      'zip',
+    size:     '—',
+    url:      '',
+    icon:     <FileArchive size={16} className="text-pink-400" />,
+  },
+  {
+    id:       'texture-slot-3',
+    category: 'Текстурпаки',
+    name:     'Пустой слот [Текстурпак-3]',
+    ext:      'zip',
+    size:     '—',
+    url:      '',
+    icon:     <FileArchive size={16} className="text-pink-400" />,
+  },
+
+  // Категория: Миры (2 слота)
+  {
+    id:       'world-slot-1',
+    category: 'Миры',
+    name:     'Пустой слот [Мир-1]',
+    ext:      'zip',
+    size:     '—',
+    url:      '',
+    icon:     <FileArchive size={16} className="text-cyan-400" />,
+  },
+  {
+    id:       'world-slot-2',
+    category: 'Миры',
+    name:     'Пустой слот [Мир-2]',
+    ext:      'zip',
+    size:     '—',
+    url:      '',
+    icon:     <FileArchive size={16} className="text-cyan-400" />,
+  },
 ];
+
+/**
+ * Конфигурация иконок и цветов заголовков для каждой категории загрузок.
+ * Чтобы добавить новую категорию — просто добавь сюда строку и запись в DOWNLOAD_FILES.
+ */
+const CATEGORY_CONFIG: Record<string, { icon: React.ReactNode; color: string }> = {
+  'Музыка':      { icon: <Music size={13} className="text-purple-400" />,     color: 'text-purple-400' },
+  'Игры':        { icon: <Gamepad2 size={13} className="text-emerald-400" />, color: 'text-emerald-400' },
+  'Фото':        { icon: <Image size={13} className="text-blue-400" />,       color: 'text-blue-400' },
+  'Моды':        { icon: <Wrench size={13} className="text-orange-400" />,    color: 'text-orange-400' },
+  'Текстурпаки': { icon: <Palette size={13} className="text-pink-400" />,     color: 'text-pink-400' },
+  'Миры':        { icon: <MapPin size={13} className="text-cyan-400" />,      color: 'text-cyan-400' },
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ВСПОМОГАТЕЛЬНЫЕ КОМПОНЕНТЫ
@@ -140,11 +263,18 @@ const fmtDate = (iso: string) =>
 // Список вкладок — добавлена новая вкладка "Загрузки"
 const TABS = ['Эндпоинты', 'База данных', 'Логи', 'Конфиг', 'Загрузки'];
 
-export const BackendModule = () => {
+interface BackendModuleProps {
+  /** Вкладка, которая будет активна при первом рендере.
+   *  По умолчанию открывается "Эндпоинты". */
+  initialTab?: string;
+}
+
+export const BackendModule = ({ initialTab }: BackendModuleProps = {}) => {
   // ── Общие состояния ──────────────────────────────────────────────────────
 
-  /** Текущая активная вкладка */
-  const [activeTab, setActiveTab] = useState('Эндпоинты');
+  /** Текущая активная вкладка.
+   *  Если передан initialTab (например "Загрузки" из нижней навигации) — открывается сразу нужная вкладка. */
+  const [activeTab, setActiveTab] = useState(initialTab ?? 'Эндпоинты');
 
   /** Вращается ли иконка обновления в шапке */
   const [spinning, setSpinning] = useState(false);
@@ -705,20 +835,23 @@ export const BackendModule = () => {
                   </div>
                 </div>
 
-                {/* Рендерим файлы, сгруппированные по категории */}
-                {(['Музыка', 'Игры'] as const).map((category) => {
+                {/* Рендерим файлы динамически — категории вычисляются из DOWNLOAD_FILES в порядке появления.
+                    Чтобы добавить новую категорию — достаточно добавить файл в DOWNLOAD_FILES и строку в CATEGORY_CONFIG. */}
+                {Array.from(new Set(DOWNLOAD_FILES.map(f => f.category))).map((category) => {
                   // Фильтруем только файлы нужной категории
                   const files = DOWNLOAD_FILES.filter(f => f.category === category);
+                  // Получаем иконку и цвет заголовка из конфига (фолбэк — серая иконка)
+                  const catCfg = CATEGORY_CONFIG[category] ?? {
+                    icon: <FileArchive size={13} className="text-zinc-500" />,
+                    color: 'text-zinc-500',
+                  };
 
                   return (
                     <div key={category} className="space-y-3">
-                      {/* Заголовок категории */}
+                      {/* Заголовок категории с иконкой из CATEGORY_CONFIG */}
                       <div className="flex items-center gap-2">
-                        {category === 'Музыка'
-                          ? <Music size={13} className="text-purple-400" />
-                          : <Gamepad2 size={13} className="text-emerald-400" />
-                        }
-                        <p className="text-[9px] font-black uppercase tracking-[0.4em] text-zinc-500">
+                        {catCfg.icon}
+                        <p className={`text-[9px] font-black uppercase tracking-[0.4em] ${catCfg.color}`}>
                           {category}
                         </p>
                       </div>
